@@ -1,8 +1,8 @@
 {
-  "name": "task-app",
-  "short_name": "task-app",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "TaskFlow Elite",
+  "short_name": "TaskFlow",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

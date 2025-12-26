@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1766732639011,
+  "timestamp": 1766737458758,
   "index": "/tasks/index.html",
   "assetGroups": [
     {
@@ -44,19 +44,19 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "/tasks/assets/icons/favicon.png": "a1fb72c5ab97653de403e0270db6d13c876995ea",
-    "/tasks/assets/icons/icon-128x128.png": "b1f06c7d714abb4a0cc4d1f7c954feb26826e4c4",
-    "/tasks/assets/icons/icon-144x144.png": "96a0d629765c1bc85d9263c6bc83094ca776d267",
-    "/tasks/assets/icons/icon-152x152.png": "b1fbbee3902eb96a7658e3bb006f31f78ca5a44c",
-    "/tasks/assets/icons/icon-192x192.png": "e4211163bf0911688fbfb80278d8ff4d2f77691d",
-    "/tasks/assets/icons/icon-384x384.png": "329749cd6393768d3131ed6304c136b1ca05f2fd",
-    "/tasks/assets/icons/icon-512x512.png": "559d9c4318b45a1f2b10596bbb4c960fe521dbcc",
-    "/tasks/assets/icons/icon-72x72.png": "279825a1ac4377032ae996a1832c641e33ccf1b6",
-    "/tasks/assets/icons/icon-96x96.png": "592885efcbfee27e5e20be4fa3043589390d2740",
+    "/tasks/assets/icons/favicon.png": "399ad87630ba5474c818db52a5dd64d42759ffec",
+    "/tasks/assets/icons/icon-128x128.png": "a97f71a18a42a58db2314d7c86649838f8dc1707",
+    "/tasks/assets/icons/icon-144x144.png": "d3a6e778b3cb5bae1327ec15520fadb52a8b07b0",
+    "/tasks/assets/icons/icon-152x152.png": "7bba0cc33558acfd4d64b28e4fc8f97ccf46368d",
+    "/tasks/assets/icons/icon-192x192.png": "23e85a1a45a4fb9c524c7d3e53c0592f6b7cd692",
+    "/tasks/assets/icons/icon-384x384.png": "399ad87630ba5474c818db52a5dd64d42759ffec",
+    "/tasks/assets/icons/icon-512x512.png": "399ad87630ba5474c818db52a5dd64d42759ffec",
+    "/tasks/assets/icons/icon-72x72.png": "3c43f8ca90cd696d800a94d619f93707e99e8fce",
+    "/tasks/assets/icons/icon-96x96.png": "a97f71a18a42a58db2314d7c86649838f8dc1707",
     "/tasks/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/tasks/index.html": "f6021fc1217d3b837d08467c6dd3e02be62b15d2",
+    "/tasks/index.html": "13d0d7afd1c344d4c0eb0a54be74fe2ef398e303",
     "/tasks/main.c5e6a7f58fbcfa8c.js": "96931d499cf0492668ca225076040e027c4d74bb",
-    "/tasks/manifest.webmanifest": "4927bb9afa00f348408e16c0cccaad10325657cf",
+    "/tasks/manifest.webmanifest": "12ec9b9147a271df681f4d97d8e9c7bc57a04363",
     "/tasks/polyfills.0db2953f3f3f9f82.js": "37a93f9a1f196b23ea93177d8ad00b0304023ef6",
     "/tasks/runtime.3186effd3ea9a198.js": "d637616c7b8511dd2c6db7e445f5225373184127",
     "/tasks/styles.009b9e0563a32ed7.css": "4159bc4bbc68f144b89d0e5fdf3db253b378aba4"

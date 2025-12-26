@@ -10,6 +10,7 @@ import {
   setDoc,
   query,
   orderBy,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Task } from '../models/task.model';
@@ -52,5 +53,14 @@ export class FirebaseTaskService {
       ...task,
       createdAt: task.createdAt || new Date(),
     });
+  }
+
+  deleteAllTasks(taskIds: string[]): Promise<void> {
+    const batch = writeBatch(this.firestore);
+    taskIds.forEach(id => {
+      const taskDoc = doc(this.firestore, `${this.collectionPath}/${id}`);
+      batch.delete(taskDoc);
+    });
+    return batch.commit();
   }
 }

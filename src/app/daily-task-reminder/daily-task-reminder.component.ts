@@ -80,6 +80,13 @@ export class DailyTaskReminderComponent implements OnInit, OnDestroy {
   activeTab = 'dashboard';
   Math = Math;
 
+  // Toast State
+  toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' } = {
+    show: false,
+    message: '',
+    type: 'info',
+  };
+
   private tasksSubscription?: Subscription;
 
   constructor(
@@ -210,7 +217,15 @@ export class DailyTaskReminderComponent implements OnInit, OnDestroy {
   }
 
   selectTab(tab: string): void {
+    console.log('Switching to tab:', tab);
     this.activeTab = tab;
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'success'): void {
+    this.toast = { show: true, message, type };
+    setTimeout(() => {
+      this.toast.show = false;
+    }, 4000);
   }
 
   getTaskCountByStatus(status: string): number {
@@ -275,12 +290,43 @@ export class DailyTaskReminderComponent implements OnInit, OnDestroy {
   deleteTask(id: string): void {
     if (confirm('Are you sure you want to delete this task?')) {
       this.firebaseTaskService.deleteTask(id).then(() => {
+        this.showToast('Task deleted successfully', 'error');
         this.closeTaskModal();
       });
     }
   }
 
+  confirmDeleteAll(): void {
+    if (this.tasks.length === 0) {
+      this.showToast('No tasks to delete', 'info');
+      return;
+    }
+
+    if (
+      confirm(
+        'PERMANENT ACTION: Are you sure you want to delete ALL tasks? This cannot be undone.'
+      )
+    ) {
+      const taskIds = this.tasks.map(t => t.id!).filter(id => !!id);
+      this.firebaseTaskService
+        .deleteAllTasks(taskIds)
+        .then(() => {
+          this.showToast(`Cleared ${taskIds.length} adventures!`, 'error');
+        })
+        .catch(err => {
+          console.error('Error deleting all tasks:', err);
+          this.showToast('Failed to clear tasks', 'error');
+        });
+    }
+  }
+
   openTaskModal(): void {
+    this.resetNewTask();
+    this.editingTask = false;
+    this.showTaskModal = true;
+  }
+
+  resetNewTask(): void {
     this.newTask = {
       id: '',
       title: '',
@@ -292,8 +338,6 @@ export class DailyTaskReminderComponent implements OnInit, OnDestroy {
       status: 'pending',
       notificationEnabled: true,
     };
-    this.editingTask = false;
-    this.showTaskModal = true;
   }
 
   closeTaskModal(): void {
@@ -331,22 +375,26 @@ export class DailyTaskReminderComponent implements OnInit, OnDestroy {
         .updateTask(this.newTask.id, taskData)
         .then(() => {
           console.log('DailyTaskReminderComponent: Task updated successfully');
+          this.showToast('Task updated successfully!');
           this.closeTaskModal();
+          this.resetNewTask();
         })
         .catch(err => {
           console.error('DailyTaskReminderComponent: Error updating task:', err);
-          alert('Error updating task: ' + (err.message || 'Unknown error'));
+          this.showToast('Error updating task', 'error');
         });
     } else {
       this.firebaseTaskService
         .addTask(taskData)
         .then(() => {
           console.log('DailyTaskReminderComponent: Task added successfully');
+          this.showToast('Task created! Ready for adventure?');
           this.closeTaskModal();
+          this.resetNewTask();
         })
         .catch(err => {
           console.error('DailyTaskReminderComponent: Error adding task:', err);
-          alert('Error adding task: ' + (err.message || 'Unknown error'));
+          this.showToast('Error adding task', 'error');
         });
     }
   }

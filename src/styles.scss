@@ -1,1 +1,177 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles - Professional Creative PWA */
+
+:root {
+  --pwa-bg: #0f172a;
+  --pwa-bg-dark: #020617;
+  --pwa-card: rgba(30, 41, 59, 0.4);
+  --pwa-card-solid: #1e293b;
+  --pwa-border: rgba(255, 255, 255, 0.08);
+  --pwa-primary: #6366f1;
+  --pwa-primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --pwa-accent: #38bdf8;
+  --pwa-accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  --pwa-text: #f8fafc;
+  --pwa-text-muted: #94a3b8;
+  --pwa-success: #10b981;
+  --pwa-danger: #ef4444;
+  --pwa-warning: #f59e0b;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--pwa-bg-dark);
+  color: var(--pwa-text);
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+/* Base App Layout */
+app-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+}
+
+.responsive-frame {
+  width: 100%;
+  height: 100%;
+  max-width: 440px;
+  max-height: 92vh;
+  background: var(--pwa-bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+@media (min-width: 451px) {
+  .responsive-frame {
+    border-radius: 3.5rem;
+    border: 10px solid #1e293b;
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 28px;
+      background: #1e293b;
+      border-radius: 14px;
+      z-index: 1000;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .responsive-frame {
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+/* Background Creative Elements */
+.bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 1;
+  opacity: 0.4;
+  animation: float 20s infinite alternate ease-in-out;
+}
+
+.bg-circle-1 {
+  width: 300px;
+  height: 300px;
+  background: var(--pwa-primary);
+  top: -100px;
+  left: -50px;
+}
+
+.bg-circle-2 {
+  width: 250px;
+  height: 250px;
+  background: var(--pwa-accent);
+  bottom: 100px;
+  right: -50px;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(30px, 30px) scale(1.1); }
+}
+
+/* Global Utilities */
+.text-gradient {
+  background: var(--pwa-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.glass {
+  background: var(--pwa-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--pwa-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.ripple {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Standard Padding */
+.page-padding {
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+}
+
+/* Custom Scrollbar */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }

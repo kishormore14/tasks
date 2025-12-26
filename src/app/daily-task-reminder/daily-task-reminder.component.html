@@ -1,0 +1,450 @@
+<!-- Daily Task Reminder Template -->
+<div class="responsive-frame">
+  <!-- Creative Background Decorations -->
+  <div class="bg-circle bg-circle-1"></div>
+  <div class="bg-circle bg-circle-2"></div>
+
+  <div class="app-container">
+    <!-- Status Bar / Top Header -->
+    <header class="app-header glass">
+      <div class="header-content page-padding">
+        <div class="app-logo">
+          <div class="logo-icon-wrapper">
+            <i class="fas fa-bolt-lightning"></i>
+          </div>
+          <h1 class="text-gradient">TaskFlow</h1>
+        </div>
+        <div class="header-actions">
+          <button
+            class="icon-btn ripple"
+            (click)="requestNotificationPermission()"
+            (keyup.enter)="requestNotificationPermission()"
+            aria-label="Notifications"
+          >
+            <i class="fas fa-bell"></i>
+            <span class="pulse-dot" *ngIf="getTaskCountByStatus('pending') > 0"></span>
+          </button>
+          <button
+            class="user-avatar-btn ripple"
+            (click)="selectTab('profile')"
+            (keyup.enter)="selectTab('profile')"
+            aria-label="View Profile"
+          >
+            <img
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4"
+              alt="User Avatar"
+            />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="app-content">
+      <div [ngSwitch]="activeTab" class="tab-content-wrapper">
+        <!-- Dashboard Tab -->
+        <div *ngSwitchCase="'dashboard'" class="tab-content animate-fade-in">
+          <div class="welcome-section page-padding">
+            <h2>Hello, <span class="text-gradient">Felix!</span></h2>
+            <p>Optimize your day with {{ getTaskCountByStatus('pending') }} tasks.</p>
+          </div>
+
+          <div class="stats-scroll-x">
+            <div class="stats-row page-padding">
+              <div
+                class="glass stat-card ripple"
+                (click)="selectTab('tasks')"
+                (keyup.enter)="selectTab('tasks')"
+                tabindex="0"
+              >
+                <div class="stat-icon-bg pending"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                  <span class="val">{{ getTaskCountByStatus('pending') }}</span>
+                  <span class="lbl">Pending</span>
+                </div>
+              </div>
+              <div
+                class="glass stat-card ripple"
+                (click)="selectTab('tasks')"
+                (keyup.enter)="selectTab('tasks')"
+                tabindex="0"
+              >
+                <div class="stat-icon-bg progress"><i class="fas fa-spinner"></i></div>
+                <div class="stat-info">
+                  <span class="val">{{ getTaskCountByStatus('in-progress') }}</span>
+                  <span class="lbl">Ongoing</span>
+                </div>
+              </div>
+              <div
+                class="glass stat-card ripple"
+                (click)="selectTab('tasks')"
+                (keyup.enter)="selectTab('tasks')"
+                tabindex="0"
+              >
+                <div class="stat-icon-bg done"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                  <span class="val">{{ getTaskCountByStatus('completed') }}</span>
+                  <span class="lbl">Completed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-container page-padding">
+            <div class="section-header">
+              <h3>Today's Focus</h3>
+              <button class="view-all-btn ripple" (click)="selectTab('tasks')">Overview</button>
+            </div>
+            <div class="focus-list">
+              <div
+                *ngFor="let task of filteredTasks.slice(0, 3); let i = index"
+                class="glass focus-card ripple"
+                [style.animation-delay]="i * 0.1 + 's'"
+                (click)="editTask(task)"
+                (keyup.enter)="editTask(task)"
+                tabindex="0"
+              >
+                <div class="priority-indicator" [ngClass]="task.priority"></div>
+                <div class="focus-content">
+                  <h4>{{ task.title }}</h4>
+                  <span><i class="far fa-clock"></i> {{ task.dueTime }}</span>
+                </div>
+                <button
+                  class="quick-check"
+                  [class.checked]="task.status === 'completed'"
+                  (click)="toggleTaskStatus(task); $event.stopPropagation()"
+                >
+                  <i class="fas fa-check"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div *ngSwitchCase="'tasks'" class="tab-content animate-slide-up">
+          <div class="tasks-header page-padding">
+            <h3>Your Tasks</h3>
+            <div class="filter-bar">
+              <button
+                class="filter-chip"
+                [class.active]="selectedFilter === 'all'"
+                (click)="selectedFilter = 'all'; filterTasks()"
+              >
+                All
+              </button>
+              <button
+                class="filter-chip"
+                [class.active]="selectedFilter === 'today'"
+                (click)="selectedFilter = 'today'; filterTasks()"
+              >
+                Today
+              </button>
+              <button
+                class="filter-chip"
+                [class.active]="selectedFilter === 'week'"
+                (click)="selectedFilter = 'week'; filterTasks()"
+              >
+                Week
+              </button>
+            </div>
+          </div>
+
+          <div class="task-list">
+            <div
+              *ngFor="let task of filteredTasks; let i = index"
+              class="glass task-card-full ripple"
+              [style.animation-delay]="i * 0.05 + 's'"
+              [ngClass]="task.status"
+              (click)="editTask(task)"
+              (keyup.enter)="editTask(task)"
+              tabindex="0"
+            >
+              <div class="task-check-column">
+                <button
+                  class="main-check"
+                  (click)="toggleTaskStatus(task); $event.stopPropagation()"
+                >
+                  <div class="check-circle" [class.active]="task.status === 'completed'">
+                    <i class="fas fa-check" *ngIf="task.status === 'completed'"></i>
+                  </div>
+                </button>
+              </div>
+              <div class="task-details-column">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description }}</p>
+                <div class="task-meta-row">
+                  <span class="date-tag"
+                    ><i class="far fa-calendar"></i> {{ task.dueDate | date: 'MMM d' }}</span
+                  >
+                  <span class="priority-tag" [ngClass]="task.priority">{{ task.priority }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="filteredTasks.length === 0" class="empty-state">
+              <i class="fas fa-sparkles"></i>
+              <p>Magic happens when you're caught up!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div *ngSwitchCase="'calendar'" class="tab-content animate-fade-in">
+          <div class="cal-nav-bar page-padding">
+            <button
+              class="cal-nav-btn ripple"
+              (click)="previousMonth()"
+              aria-label="Previous Month"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <h3>{{ currentMonth }}</h3>
+            <button class="cal-nav-btn ripple" (click)="nextMonth()" aria-label="Next Month">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="page-padding">
+            <div class="glass calendar-wrapper">
+              <div class="weekdays-strip">
+                <span *ngFor="let day of weekDays">{{ day.charAt(0) }}</span>
+              </div>
+              <div class="days-grid">
+                <button
+                  *ngFor="let day of calendarDays"
+                  class="day-cell"
+                  [ngClass]="{
+                    'not-current': !day.isCurrentMonth,
+                    'is-today': day.isToday,
+                    'is-selected': selectedDate.toDateString() === day.date.toDateString(),
+                  }"
+                  (click)="selectDate(day.date)"
+                >
+                  <span>{{ day.date.getDate() }}</span>
+                  <div class="task-dot" *ngIf="day.hasTask"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="day-tasks-section page-padding" *ngIf="selectedDateTasks.length > 0">
+            <div class="day-header">
+              <h4>{{ selectedDate | date: 'MMMM d' }}</h4>
+              <span class="task-count">{{ selectedDateTasks.length }} items</span>
+            </div>
+            <div class="mini-tasks-container">
+              <div *ngFor="let task of selectedDateTasks" class="glass mini-task-card ripple">
+                <span class="time">{{ task.dueTime }}</span>
+                <span class="title">{{ task.title }}</span>
+                <div class="dot-priority" [ngClass]="task.priority"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Tab -->
+        <div class="profile-page animate-fade-in">
+          <div class="profile-header page-padding">
+            <div class="p-avatar-ring">
+              <img
+                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4"
+                alt="Profile"
+              />
+            </div>
+            <h3 class="text-gradient">Felix Anderson</h3>
+            <div class="badge">
+              <i class="fas fa-crown"></i>
+              <span>TaskFlow Elite</span>
+            </div>
+          </div>
+
+          <div class="settings-grid page-padding">
+            <button class="glass setting-card ripple">
+              <i class="fas fa-user-shield"></i>
+              <span>Security</span>
+            </button>
+            <button class="glass setting-card ripple">
+              <i class="fas fa-bell-concierge"></i>
+              <span>Alerts</span>
+            </button>
+            <button class="glass setting-card ripple">
+              <i class="fas fa-palette"></i>
+              <span>Theme</span>
+            </button>
+            <button class="glass setting-card ripple danger">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+
+          <!-- Uploader Integration -->
+          <div class="page-padding">
+            <app-bulk-uploader></app-bulk-uploader>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Navigation Bar -->
+    <nav class="pwa-nav glass">
+      <div class="nav-content page-padding">
+        <button
+          class="nav-btn"
+          [class.active]="activeTab === 'dashboard'"
+          (click)="selectTab('dashboard')"
+        >
+          <i class="fas fa-compass"></i>
+          <span>Explore</span>
+        </button>
+        <button class="nav-btn" [class.active]="activeTab === 'tasks'" (click)="selectTab('tasks')">
+          <i class="fas fa-layer-group"></i>
+          <span>Tasks</span>
+        </button>
+        <div class="fab-spacer"></div>
+        <button
+          class="nav-btn"
+          [class.active]="activeTab === 'calendar'"
+          (click)="selectTab('calendar')"
+        >
+          <i class="fas fa-calendar-alt"></i>
+          <span>Plan</span>
+        </button>
+        <button
+          class="nav-btn"
+          [class.active]="activeTab === 'profile'"
+          (click)="selectTab('profile')"
+        >
+          <i class="fas fa-circle-user"></i>
+          <span>Me</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Master FAB -->
+    <button class="master-fab" (click)="openTaskModal()" aria-label="Add Task">
+      <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Bottom Sheet Modal -->
+    <div class="sheet-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()" [@fadeIn]>
+      <div class="bottom-sheet glass" (click)="$event.stopPropagation()" [@slideUp]>
+        <div class="drag-handle"></div>
+
+        <div class="sheet-top page-padding">
+          <h3>{{ editingTask ? 'Refine Task' : 'New Adventure' }}</h3>
+          <button class="close-sheet ripple" (click)="closeTaskModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="sheet-content page-padding">
+          <form (ngSubmit)="saveTask()" #taskForm="ngForm">
+            <div class="input-field glass">
+              <label>What's the goal?</label>
+              <input
+                type="text"
+                name="title"
+                [ngModel]="newTask.title"
+                (ngModelChange)="newTask.title = $any($event)"
+                required
+                placeholder="Project Alpha..."
+              />
+            </div>
+
+            <div class="input-field glass">
+              <label>Details</label>
+              <textarea
+                name="description"
+                [ngModel]="newTask.description"
+                (ngModelChange)="newTask.description = $any($event)"
+                rows="2"
+                placeholder="Start by doing..."
+              ></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="input-field glass">
+                <label>When?</label>
+                <input
+                  type="date"
+                  name="date"
+                  [ngModel]="newTask.dueDateString"
+                  (ngModelChange)="newTask.dueDateString = $any($event)"
+                  required
+                />
+              </div>
+              <div class="input-field glass">
+                <label>Time</label>
+                <input
+                  type="time"
+                  name="time"
+                  [ngModel]="newTask.dueTime"
+                  (ngModelChange)="newTask.dueTime = $any($event)"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="priority-box glass">
+              <label>Priority</label>
+              <div class="priority-options">
+                <button
+                  type="button"
+                  class="p-opt low ripple"
+                  [class.active]="newTask.priority === 'low'"
+                  (click)="newTask.priority = 'low'"
+                >
+                  Low
+                </button>
+                <button
+                  type="button"
+                  class="p-opt med ripple"
+                  [class.active]="newTask.priority === 'medium'"
+                  (click)="newTask.priority = 'medium'"
+                >
+                  Med
+                </button>
+                <button
+                  type="button"
+                  class="p-opt high ripple"
+                  [class.active]="newTask.priority === 'high'"
+                  (click)="newTask.priority = 'high'"
+                >
+                  High
+                </button>
+              </div>
+            </div>
+
+            <div class="switch-box glass">
+              <span>Alert me</span>
+              <label class="pwa-switch">
+                <input
+                  type="checkbox"
+                  name="notif"
+                  [ngModel]="newTask.notificationEnabled"
+                  (ngModelChange)="newTask.notificationEnabled = $any($event)"
+                />
+                <span class="pwa-slider"></span>
+              </label>
+            </div>
+
+            <div class="sheet-actions">
+              <button
+                type="button"
+                class="btn-secondary ripple"
+                *ngIf="editingTask"
+                (click)="deleteTask(newTask.id)"
+              >
+                Delete
+              </button>
+              <button type="submit" class="btn-primary ripple" [disabled]="!taskForm.valid">
+                {{ editingTask ? 'Update' : 'Create' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

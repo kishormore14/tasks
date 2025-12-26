@@ -1,0 +1,46 @@
+<div class="uploader-card">
+  <div class="header-box">
+    <h3>Bulk Uploader</h3>
+    <p>Seamlessly import task batches via JSON</p>
+  </div>
+
+  <div class="file-drop-zone">
+    <p>Select your task JSON file</p>
+    <input type="file" (change)="onFileSelected($event)" accept=".json" [disabled]="isUploading" />
+    <p class="stats-msg" *ngIf="tasks.length > 0">{{ statusMessage }}</p>
+  </div>
+
+  <div class="progress-bar-container" *ngIf="isUploading || uploadProgress > 0">
+    <div class="p-bar-outer">
+      <div class="p-bar-inner" [style.width.%]="uploadProgress"></div>
+    </div>
+    <div class="p-bar-details">
+      <span>{{ uploadProgress }}% Complete</span>
+      <span>
+        <span class="success">{{ successCount }} Successful</span>
+        <span class="divider"> | </span>
+        <span class="error">{{ errorCount }} Errors</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="log-console" #logScrollContainer>
+    <div *ngFor="let log of logs" [className]="'log-line ' + log.type">
+      {{ log.message }}
+    </div>
+    <div *ngIf="logs.length === 0" class="placeholder">
+      <i class="fas fa-terminal"></i> Ready for upload sequence...
+    </div>
+  </div>
+
+  <div class="upload-action-box">
+    <button
+      class="btn-bulk ripple"
+      (click)="startUpload()"
+      [disabled]="isUploading || tasks.length === 0"
+    >
+      <i class="fas fa-cloud-arrow-up"></i>
+      {{ isUploading ? 'Uploading Sequence...' : 'Initiate Bulk Upload' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Task Uploader</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 { margin-top: 0; color: #38bdf8; }
+        .setup-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px dashed #334155;
+            border-radius: 0.5rem;
+        }
+        input[type="file"] {
+            margin: 1rem 0;
+            color: #94a3b8;
+        }
+        button {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-bottom: 1rem;
+        }
+        button:hover { background-color: #7dd3fc; transform: scale(1.05); }
+        button:disabled { background-color: #475569; cursor: not-allowed; transform: none; }
+        #log {
+            text-align: left;
+            background-color: #020617;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            border: 1px solid #334155;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #334155;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+        #progress-bar {
+            height: 10px;
+            background-color: #38bdf8;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TaskFlow Uploader</h1>
+        
+        <div class="setup-section" id="setupSection">
+            <p>1. Select the task JSON file:</p>
+            <input type="file" id="fileInput" accept=".json">
+            <p id="stats">No file selected.</p>
+        </div>
+
+        <div class="progress-bar-container" id="progressContainer">
+            <div id="progress-bar"></div>
+        </div>
+
+        <button id="uploadBtn" disabled>Start Upload</button>
+        
+        <div id="log"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9sGT1ap0mqTYmlCUPzPbenLrvuTrBRJs",
+            authDomain: "pwa-app-1000e.firebaseapp.com",
+            projectId: "pwa-app-1000e",
+            storageBucket: "pwa-app-1000e.firebasestorage.app",
+            messagingSenderId: "447048209140",
+            appId: "1:447048209140:web:e05a2f75bdd659507b44a1",
+            measurementId: "G-S3DSSKZF1S"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const logEl = document.getElementById('log');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progressContainer');
+        const statsEl = document.getElementById('stats');
+        const setupSection = document.getElementById('setupSection');
+
+        let tasks = [];
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    tasks = JSON.parse(event.target.result);
+                    statsEl.textContent = `Ready to upload ${tasks.length} tasks.`;
+                    uploadBtn.disabled = false;
+                    log(`File loaded. Found ${tasks.length} tasks.`, 'success');
+                } catch (err) {
+                    log(`Error parsing JSON: ${err.message}`, 'error');
+                    uploadBtn.disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            uploadBtn.disabled = true;
+            fileInput.disabled = true;
+            progressContainer.style.display = 'block';
+            log('Starting bulk upload...', 'info');
+            
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (let i = 0; i < tasks.length; i++) {
+                const task = tasks[i];
+                try {
+                    const taskData = { ...task };
+                    
+                    // Format dates for Firestore
+                    if (taskData.dueDate && typeof taskData.dueDate === 'string') {
+                        taskData.dueDate = new Date(taskData.dueDate);
+                    }
+                    if (!taskData.createdAt) {
+                        taskData.createdAt = new Date();
+                    }
+
+                    const taskId = task.id;
+                    delete taskData.id;
+
+                    await setDoc(doc(db, "tasks", taskId), taskData);
+                    successCount++;
+                    
+                    const percent = Math.round(((i + 1) / tasks.length) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    statsEl.textContent = `Progress: ${i + 1}/${tasks.length} (${percent}%)`;
+                    
+                } catch (err) {
+                    console.error(err);
+                    log(`Failed to upload ${task.title}: ${err.message}`, 'error');
+                    errorCount++;
+                }
+
+                if (i % 5 === 0) await new Promise(r => setTimeout(r, 50));
+            }
+
+            log(`Upload complete! Success: ${successCount}, Failed: ${errorCount}`, 'success');
+            uploadBtn.textContent = 'Upload Finished';
+        });
+    </script>
+</body>
+</html>
